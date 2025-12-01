@@ -494,13 +494,13 @@
 				padding: 6px 10px;
 				outline: none;
 			}
-      .us-map a {
-  cursor: default;          /* visual only, paths keep pointer */
-}
+			.us-map a {
+				cursor: default; /* visual only, paths keep pointer */
+			}
 
-.us-map a path {
-  cursor: pointer;          /* ensure hand cursor on states */
-}
+			.us-map a path {
+				cursor: pointer; /* ensure hand cursor on states */
+			}
 
 			.details-search {
 				position: relative;
@@ -726,9 +726,7 @@
 						</div>
 					</div>
 					<div class="header-text">
-						<h1>
-							US State Data Breach Rules
-						</h1>
+						<h1>US State Data Breach Rules</h1>
 						<p>
 							Select a state to view personal information definitions, breach
 							triggers, and notification timelines.
@@ -1154,18 +1152,6 @@
 
 					<div class="details-filters">
 						<div class="details-filters-left">
-							<div id="uploadModule">
-								<label style="font-size: 0.7rem; color: #9ca3af">
-									Load rules from TSV:
-									<input
-										id="csvFileInput"
-										type="file"
-										accept=".tsv"
-										style="font-size: 0.7rem; margin-left: 4px"
-									/>
-								</label>
-							</div>
-
 							<select id="fieldFilter" class="field-select">
 								<option value="all">Show all fields</option>
 							</select>
@@ -1215,7 +1201,18 @@
 		</div>
 
 		<script>
-			// ---- Field metadata (used for labels, dropdown, and mapping) ----------------
+			// ============================================================================
+			// CONFIGURATION
+			// ============================================================================
+
+			const GOOGLE_LINK =
+				"https://docs.google.com/spreadsheets/d/e/2PACX-1vS0gV7AXGccNCpO84hEFZUHfi9QWc13GJFDw6f3MsWx4fN3gWFWtPujqzYTLOQr5jw4e4gA0U7xzHyG/pub?output=tsv";
+
+			const SHEET_URL =
+				"https://corsproxy.io/?" + encodeURIComponent(GOOGLE_LINK);
+			// ============================================================================
+			// FIELD METADATA & STATE DATA SKELETON
+			// ============================================================================
 			const FIELD_DEFS = [
 				{ key: "statute", label: "Statute(s) Citation" },
 				{ key: "pii", label: "Definition of Personal Information (PII)" },
@@ -1241,397 +1238,64 @@
 				{ key: "notes", label: "Notes / Other Requirements" },
 			];
 
-			// ---- Base state data (will be augmented by Google Sheet) -------------------
+			// Base skeleton. The 'rules' array will be populated by the Google Sheet.
 			const STATES = [
-				{
-					code: "AL",
-					name: "Alabama",
-					category: "Standard notification",
-					rules: [
-						{
-							statute: "Example: Ala. Code § 8-38-1 et seq.",
-							pii: "First name or initial and last name with SSN, driver license, financial account numbers with required access codes. You can paste the full statutory definition here.",
-							breach:
-								"Unauthorized acquisition of unencrypted data that materially compromises the security or confidentiality of personal information.",
-							riskOfHarm:
-								"Risk of harm analysis required to determine if misuse is reasonably likely before notice is triggered.",
-							timingIndividuals:
-								"Without unreasonable delay, typically within X days of determining that a breach occurred.",
-							timingAG:
-								"Required when more than X residents are affected or if special sectors apply.",
-							timingCreditAgencies:
-								"Notify consumer reporting agencies when more than X residents require notification.",
-							noticeContent:
-								"Must include description of the incident, types of information involved, contact information, and steps individuals can take.",
-							noticeMethod:
-								"Written notice, electronic notice consistent with E-SIGN, or substitute notice such as website posting and media if cost or scope thresholds are met.",
-							penalties:
-								"Civil penalties enforceable by the AG. Insert details once researched.",
-							exemptions:
-								"Encrypted data, good faith acquisition by an employee, and GLBA/HIPAA entities as provided by statute.",
-							sourceUrl: "https://example.alabama.gov/breach-statute",
-							notes:
-								"Add any special sector rules, safe harbors, or data security program requirements here.",
-						},
-					],
-				},
-				{
-					code: "AK",
-					name: "Alaska",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "AZ",
-					name: "Arizona",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "AR",
-					name: "Arkansas",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "CA",
-					name: "California",
-					category: "Strong consumer protections",
-					rules: [
-						{
-							statute:
-								"Cal. Civ. Code §§ 1798.29, 1798.82 (example placeholder)",
-							pii: "First name or initial and last name combined with identifiers such as SSN, driver license, financial account information, medical information, health insurance information, and online account credentials.",
-							breach:
-								"Unauthorized acquisition of computerized data that compromises the security, confidentiality, or integrity of personal information.",
-							riskOfHarm:
-								"Risk of harm assessment is often implied in enforcement guidance. You can summarize AG guidance here.",
-							timingIndividuals:
-								"In the most expedient time possible and without unreasonable delay, subject to law enforcement needs.",
-							timingAG:
-								"AG notice required for breaches affecting more than a specified number of residents.",
-							timingCreditAgencies:
-								"Required if a certain volume of residents must be notified.",
-							noticeContent:
-								"Plain language notice including incident overview, categories of PII, dates, toll-free numbers, and information on credit monitoring if offered.",
-							noticeMethod:
-								"Written or electronic notice, with model format and headings that can be added in notes.",
-							penalties:
-								"Enforced under consumer protection statutes and data protection acts. Insert details on private right of action if applicable.",
-							exemptions:
-								"Entities compliant with HIPAA or GLBA may have limited exemptions when equivalent notice is given.",
-							sourceUrl: "https://example.ca.gov/data-breach-law",
-							notes:
-								"You can also cross-reference CCPA / CPRA obligations here for broader security and incident response requirements.",
-						},
-					],
-				},
-				{
-					code: "CO",
-					name: "Colorado",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "CT",
-					name: "Connecticut",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "DE",
-					name: "Delaware",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "FL",
-					name: "Florida",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "GA",
-					name: "Georgia",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "HI",
-					name: "Hawaii",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "ID",
-					name: "Idaho",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "IL",
-					name: "Illinois",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "IN",
-					name: "Indiana",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "IA",
-					name: "Iowa",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "KS",
-					name: "Kansas",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "KY",
-					name: "Kentucky",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "LA",
-					name: "Louisiana",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "ME",
-					name: "Maine",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "MD",
-					name: "Maryland",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "MA",
-					name: "Massachusetts",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "MI",
-					name: "Michigan",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "MN",
-					name: "Minnesota",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "MS",
-					name: "Mississippi",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "MO",
-					name: "Missouri",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "MT",
-					name: "Montana",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "NE",
-					name: "Nebraska",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "NV",
-					name: "Nevada",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "NH",
-					name: "New Hampshire",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "NJ",
-					name: "New Jersey",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "NM",
-					name: "New Mexico",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "NY",
-					name: "New York",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "NC",
-					name: "North Carolina",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "ND",
-					name: "North Dakota",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "OH",
-					name: "Ohio",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "OK",
-					name: "Oklahoma",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "OR",
-					name: "Oregon",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "PA",
-					name: "Pennsylvania",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "RI",
-					name: "Rhode Island",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "SC",
-					name: "South Carolina",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "SD",
-					name: "South Dakota",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "TN",
-					name: "Tennessee",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "TX",
-					name: "Texas",
-					category: "Strict timelines",
-					rules: [
-						{
-							statute: "Example: Tex. Bus. & Com. Code § 521.053",
-							pii: "First name or initial and last name with SSN, driver license, or financial account details. Include biometric or health data if statute includes it.",
-							breach:
-								"Unauthorized acquisition of computerized data that compromises security or confidentiality of PII.",
-							riskOfHarm:
-								"Risk of harm analysis permitted. Organizations may document why a breach is unlikely to result in harm.",
-							timingIndividuals:
-								"Not later than X days after determination of breach. Replace X with the statutory number when you research.",
-							timingAG:
-								"AG must be notified when X or more residents are affected, generally within the same timeframe as individual notice.",
-							timingCreditAgencies:
-								"Notice to consumer reporting agencies when a threshold number of residents is impacted.",
-							noticeContent:
-								"Description of incident, types of PII, contact information, and any remediation or credit monitoring details.",
-							noticeMethod:
-								"Written, electronic, or substitute notice as allowed by statute.",
-							penalties:
-								"Civil penalties per violation or per affected individual, up to a statutory cap.",
-							exemptions:
-								"Encrypted data, good faith acquisition, and certain regulated entities if they comply with federal sector rules.",
-							sourceUrl: "https://example.texas.gov/breach-requirements",
-							notes:
-								"Use this area to track security program obligations or retention rules if relevant.",
-						},
-					],
-				},
-				{
-					code: "UT",
-					name: "Utah",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "VT",
-					name: "Vermont",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "VA",
-					name: "Virginia",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "WA",
-					name: "Washington",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "WV",
-					name: "West Virginia",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "WI",
-					name: "Wisconsin",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "WY",
-					name: "Wyoming",
-					category: "To be researched",
-					rules: [],
-				},
-				{
-					code: "DC",
-					name: "District of Columbia",
-					category: "To be researched",
-					rules: [],
-				},
+				{ code: "AL", name: "Alabama", rules: [] },
+				{ code: "AK", name: "Alaska", rules: [] },
+				{ code: "AZ", name: "Arizona", rules: [] },
+				{ code: "AR", name: "Arkansas", rules: [] },
+				{ code: "CA", name: "California", rules: [] },
+				{ code: "CO", name: "Colorado", rules: [] },
+				{ code: "CT", name: "Connecticut", rules: [] },
+				{ code: "DE", name: "Delaware", rules: [] },
+				{ code: "FL", name: "Florida", rules: [] },
+				{ code: "GA", name: "Georgia", rules: [] },
+				{ code: "HI", name: "Hawaii", rules: [] },
+				{ code: "ID", name: "Idaho", rules: [] },
+				{ code: "IL", name: "Illinois", rules: [] },
+				{ code: "IN", name: "Indiana", rules: [] },
+				{ code: "IA", name: "Iowa", rules: [] },
+				{ code: "KS", name: "Kansas", rules: [] },
+				{ code: "KY", name: "Kentucky", rules: [] },
+				{ code: "LA", name: "Louisiana", rules: [] },
+				{ code: "ME", name: "Maine", rules: [] },
+				{ code: "MD", name: "Maryland", rules: [] },
+				{ code: "MA", name: "Massachusetts", rules: [] },
+				{ code: "MI", name: "Michigan", rules: [] },
+				{ code: "MN", name: "Minnesota", rules: [] },
+				{ code: "MS", name: "Mississippi", rules: [] },
+				{ code: "MO", name: "Missouri", rules: [] },
+				{ code: "MT", name: "Montana", rules: [] },
+				{ code: "NE", name: "Nebraska", rules: [] },
+				{ code: "NV", name: "Nevada", rules: [] },
+				{ code: "NH", name: "New Hampshire", rules: [] },
+				{ code: "NJ", name: "New Jersey", rules: [] },
+				{ code: "NM", name: "New Mexico", rules: [] },
+				{ code: "NY", name: "New York", rules: [] },
+				{ code: "NC", name: "North Carolina", rules: [] },
+				{ code: "ND", name: "North Dakota", rules: [] },
+				{ code: "OH", name: "Ohio", rules: [] },
+				{ code: "OK", name: "Oklahoma", rules: [] },
+				{ code: "OR", name: "Oregon", rules: [] },
+				{ code: "PA", name: "Pennsylvania", rules: [] },
+				{ code: "RI", name: "Rhode Island", rules: [] },
+				{ code: "SC", name: "South Carolina", rules: [] },
+				{ code: "SD", name: "South Dakota", rules: [] },
+				{ code: "TN", name: "Tennessee", rules: [] },
+				{ code: "TX", name: "Texas", rules: [] },
+				{ code: "UT", name: "Utah", rules: [] },
+				{ code: "VT", name: "Vermont", rules: [] },
+				{ code: "VA", name: "Virginia", rules: [] },
+				{ code: "WA", name: "Washington", rules: [] },
+				{ code: "WV", name: "West Virginia", rules: [] },
+				{ code: "WI", name: "Wisconsin", rules: [] },
+				{ code: "WY", name: "Wyoming", rules: [] },
+				{ code: "DC", name: "District of Columbia", rules: [] },
 			];
 
-			// ---- DOM references --------------------------------------------------------
-			const statesGridEl = document.getElementById("statesGrid");
+			// ============================================================================
+			// DOM REFERENCES & INITIAL SETUP
+			// ============================================================================
 			const stateSearchEl = document.getElementById("stateSearch");
 			const rulesSectionsEl = document.getElementById("rulesSections");
 			const detailsStateNameEl = document.getElementById("detailsStateName");
@@ -1640,11 +1304,12 @@
 			const footerStateNameEl = document.getElementById("footerStateName");
 			const fieldFilterEl = document.getElementById("fieldFilter");
 			const detailSearchEl = document.getElementById("detailSearch");
+			const usMapEl = document.querySelector(".us-map");
 
 			let activeStateCode = null;
-			let activeRuleIndex = 0; // if multiple rows per state later
+			let activeRuleIndex = 0;
 
-			// ---- Populate field dropdown ----------------------------------------------
+			// Populate Dropdown
 			FIELD_DEFS.forEach((field) => {
 				const opt = document.createElement("option");
 				opt.value = field.key;
@@ -1652,127 +1317,204 @@
 				fieldFilterEl.appendChild(opt);
 			});
 
-			// ---- DOM references (Update these) ---------------------------------------
-			const usMapEl = document.querySelector(".us-map");
-			// You can remove statesGridEl references if you want
+			// ============================================================================
+			// FETCH LOGIC (Google Sheets)
+			// ============================================================================
+			async function initDataLoad() {
+				// 1. Check if URL is set
+				if (!SHEET_URL || SHEET_URL.includes("INSERT_YOUR")) {
+					console.warn("No Google Sheet URL provided yet.");
+					detailsSubtitleEl.textContent =
+						"Data source not connected. Please add TSV URL in code.";
+					return;
+				}
 
-			// ---- Map Interactions ----------------------------------------------------
+				// 2. UI Feedback
+				detailsSubtitleEl.textContent = "Loading latest rules from database...";
+				detailsSubtitleEl.style.opacity = "0.7";
+
+				try {
+					// 3. Fetch
+					const response = await fetch(SHEET_URL);
+					if (!response.ok)
+						throw new Error(`Network response was not ok: ${response.status}`);
+
+					const text = await response.text();
+
+					// 4. Parse & Apply
+					const count = applySheetTsvText(text);
+
+					// 5. Success Feedback
+					detailsSubtitleEl.textContent = `Database loaded (${count} states found). Click a state to view rules.`;
+					detailsSubtitleEl.style.opacity = "1";
+
+					// Optional: Reload current state if one is already selected
+					if (activeStateCode) {
+						renderRulesSections();
+					}
+				} catch (error) {
+					console.error("Error loading data:", error);
+					detailsSubtitleEl.textContent =
+						"Error connecting to database. Using offline templates.";
+					detailsSubtitleEl.style.color = "#f87171"; // Red-ish error color
+				}
+			}
+
+			// ============================================================================
+			// PARSING LOGIC
+			// ============================================================================
+			function applySheetTsvText(text) {
+				const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
+				if (lines.length <= 1) return 0;
+
+				// Use tabs (\t) to split
+				const header = lines[0].split("\t").map((h) => h.trim());
+				const lowerHeader = header.map((h) => h.toLowerCase());
+
+				// Helper to find column index roughly matching a name
+				const findCol = (...candidates) => {
+					const targets = candidates.map((c) => c.toLowerCase());
+					return lowerHeader.findIndex((h) =>
+						targets.some((t) => h.includes(t))
+					);
+				};
+
+				// Map headers to our internal keys
+				const colMap = {
+					stateName: findCol("state / jurisdiction", "state", "jurisdiction"),
+					statute: findCol("statute"),
+					pii: findCol("definition of personal", "pii"),
+					breach: findCol("definition of breach"),
+					riskOfHarm: findCol("risk of harm"),
+					timingIndividuals: findCol("individuals", "consumer notice"),
+					timingAG: findCol("attorney general", "ag notice"),
+					timingCredit: findCol("credit agencies", "consumer reporting"),
+					noticeContent: findCol("content", "contents"),
+					noticeMethod: findCol("method"),
+					penalties: findCol("penalties"),
+					exemptions: findCol("exemptions"),
+					sourceUrl: findCol("source", "link", "url"),
+					notes: findCol("notes", "other"),
+				};
+
+				if (colMap.stateName === -1) {
+					console.warn("Could not find 'State' column in TSV");
+					return 0;
+				}
+
+				// Clear existing local rules to avoid duplicates
+				STATES.forEach((s) => {
+					s.rules = [];
+				});
+
+				let loadedCount = 0;
+
+				lines.slice(1).forEach((line) => {
+					const cols = line.split("\t");
+					const stateName = (cols[colMap.stateName] || "").trim();
+					if (!stateName) return;
+
+					const state = STATES.find(
+						(s) => s.name.toLowerCase() === stateName.toLowerCase()
+					);
+					if (!state) return;
+
+					// Build the rule object safely
+					const val = (idx) => (idx >= 0 ? (cols[idx] || "").trim() : "");
+
+					const rule = {
+						statute: val(colMap.statute),
+						pii: val(colMap.pii),
+						breach: val(colMap.breach),
+						riskOfHarm: val(colMap.riskOfHarm),
+						timingIndividuals: val(colMap.timingIndividuals),
+						timingAG: val(colMap.timingAG),
+						timingCreditAgencies: val(colMap.timingCredit),
+						noticeContent: val(colMap.noticeContent),
+						noticeMethod: val(colMap.noticeMethod),
+						penalties: val(colMap.penalties),
+						exemptions: val(colMap.exemptions),
+						sourceUrl: val(colMap.sourceUrl),
+						notes: val(colMap.notes),
+					};
+
+					state.rules.push(rule);
+					loadedCount++;
+				});
+
+				return loadedCount;
+			}
+
+			// ============================================================================
+			// UI INTERACTIONS
+			// ============================================================================
+
 			function setupMapInteractions() {
 				const paths = document.querySelectorAll(".us-map path");
-
 				paths.forEach((path) => {
 					path.addEventListener("click", (e) => {
-						// prevent the <a href="#"> from jumping the page
 						e.preventDefault();
 						e.stopPropagation();
-
+						// Handle direct ID or parent <a> ID
 						const code =
-							path.dataset.id || // data-id="CA"
-							(path.parentElement && path.parentElement.id) || // <a id="CA">
-							path.id; // fallback
-
-						if (code) {
-							setActiveState(code);
-						}
+							path.dataset.id ||
+							(path.parentElement && path.parentElement.id) ||
+							path.id;
+						if (code) setActiveState(code);
 					});
 				});
 			}
 
-			// ---- Updated Set Active State --------------------------------------------
 			function setActiveState(code) {
 				activeStateCode = code;
 				activeRuleIndex = 0;
 
-				// 1. Update Map Visuals
-				// Remove 'active' class from all paths
+				// 1. Visual Active State
 				document
 					.querySelectorAll(".us-map path")
 					.forEach((p) => p.classList.remove("active"));
-
-				// Add 'active' class to clicked path
 				const activePath =
 					document.querySelector(`.us-map path[data-id="${code}"]`) ||
-					document.querySelector(`.us-map a#${code} > path`) ||
-					document.querySelector(`.us-map path#${code}`); // last-resort fallback
+					document.querySelector(`.us-map a#${code} > path`);
 
 				if (activePath) {
 					activePath.classList.add("active");
-					// bring it to front so stroke isn't clipped
-					if (activePath.parentElement) {
+					// Bring to front for better border visibility
+					if (activePath.parentElement.tagName === "A") {
+						activePath.parentElement.parentElement.appendChild(
+							activePath.parentElement
+						);
+					} else {
 						activePath.parentElement.appendChild(activePath);
 					}
 				}
 
-				// 2. Hide upload module (existing logic)
-				if (uploadModule) {
-					uploadModule.classList.add("hidden");
-				}
-
-				// 3. Find State Data
+				// 2. Load Data
 				const state = STATES.find((s) => s.code === code);
 
-				// 4. Update UI Text
-				// If state exists in data
 				if (state) {
 					detailsStateNameEl.textContent = state.name;
 					detailsStateCodeEl.textContent = state.code;
 					footerStateNameEl.textContent = state.name;
 
 					if (state.rules && state.rules.length > 0) {
-						detailsSubtitleEl.textContent =
-							"Summary of personal information definitions, breach triggers, and notification timelines for " +
-							state.name +
-							".";
+						detailsSubtitleEl.textContent = "Data loaded from spreadsheet.";
 						renderRulesSections();
 					} else {
 						detailsSubtitleEl.textContent =
-							"Template ready. Use this panel to enter statutes and breach notification requirements for " +
-							state.name +
-							".";
+							"No data found in spreadsheet for " + state.name + ".";
 						renderEmptyTemplateSections(state.name);
 					}
-				}
-				// If state is clicked on map but not in data array yet (fallback)
-				else {
-					  const linkEl = document.querySelector(`.us-map a#${code}`);
-  const titleEl = linkEl ? linkEl.querySelector("title") : null;
-  const name = titleEl ? titleEl.textContent : code;
-
-  detailsStateNameEl.textContent = name;
-  detailsStateCodeEl.textContent = code;
-  footerStateNameEl.textContent = name;
-  detailsSubtitleEl.textContent = "Data not found for this state.";
-  renderEmptyTemplateSections(name);
+				} else {
+					// Fallback for territories/other
+					detailsStateNameEl.textContent = code;
+					renderEmptyTemplateSections(code);
 				}
 			}
 
-			// ---- Search Logic Update -------------------------------------------------
-			// Since we don't have a list to filter, we can make the search bar
-			// select the state on the map.
-			stateSearchEl.addEventListener("keydown", (e) => {
-				if (e.key === "Enter") {
-					const query = stateSearchEl.value.trim().toLowerCase();
-					const foundState = STATES.find(
-						(s) =>
-							s.name.toLowerCase() === query || s.code.toLowerCase() === query
-					);
-					if (foundState) {
-						setActiveState(foundState.code);
-					}
-				}
-			});
-
-			// ---- Initial render ------------------------------------------------------
-			setupMapInteractions();
-			// Optional: Select a default state
-			// setActiveState("TX");
-			// ---- Render row-style sections --------------------------------------------
 			function renderRulesSections() {
 				const state = STATES.find((s) => s.code === activeStateCode);
-				if (!state || !state.rules || state.rules.length === 0) {
-					renderEmptyTemplateSections(state ? state.name : "this state");
-					return;
-				}
+				if (!state || !state.rules || state.rules.length === 0) return;
 
 				const rule = state.rules[activeRuleIndex] || state.rules[0];
 				const filterKey = fieldFilterEl.value;
@@ -1781,11 +1523,13 @@
 				rulesSectionsEl.innerHTML = "";
 
 				FIELD_DEFS.forEach((field) => {
+					// Filter Logic
 					if (filterKey !== "all" && filterKey !== field.key) return;
 
 					const value = (rule[field.key] || "").toString();
 					const lowerValue = value.toLowerCase();
 
+					// Search Logic
 					if (
 						searchQuery &&
 						!lowerValue.includes(searchQuery) &&
@@ -1794,6 +1538,7 @@
 						return;
 					}
 
+					// Create Row
 					const section = document.createElement("div");
 					section.className = "rules-section";
 
@@ -1807,21 +1552,12 @@
 					contentDiv.className = "rules-section-content";
 
 					if (!value) {
-						contentDiv.textContent =
-							"No information entered yet. Add this field in your Google Sheet.";
+						contentDiv.textContent = "—"; // Empty placeholder
 						contentDiv.classList.add("muted");
 					} else if (field.key === "statute") {
-						const pill = document.createElement("span");
-						pill.className = "rules-section-pill";
-						pill.innerHTML = "<strong>Statute</strong> " + value;
-						contentDiv.appendChild(pill);
+						contentDiv.innerHTML = `<span class="rules-section-pill"><strong>Statute</strong> ${value}</span>`;
 					} else if (field.key === "sourceUrl") {
-						const link = document.createElement("a");
-						link.href = value;
-						link.target = "_blank";
-						link.rel = "noopener noreferrer";
-						link.textContent = "Open statute / guidance";
-						contentDiv.appendChild(link);
+						contentDiv.innerHTML = `<a href="${value}" target="_blank" rel="noopener">Open external link</a>`;
 					} else {
 						contentDiv.textContent = value;
 					}
@@ -1830,201 +1566,53 @@
 					section.appendChild(contentDiv);
 					rulesSectionsEl.appendChild(section);
 				});
-
-				if (!rulesSectionsEl.children.length) {
-					const section = document.createElement("div");
-					section.className = "rules-section";
-					const labelDiv = document.createElement("div");
-					labelDiv.className = "rules-section-label";
-					const labelChip = document.createElement("span");
-					labelChip.textContent = "No match";
-					labelDiv.appendChild(labelChip);
-
-					const contentDiv = document.createElement("div");
-					contentDiv.className = "rules-section-content muted";
-					contentDiv.textContent =
-						"No fields match your current filter or search.";
-
-					section.appendChild(labelDiv);
-					section.appendChild(contentDiv);
-					rulesSectionsEl.appendChild(section);
-				}
 			}
 
 			function renderEmptyTemplateSections(stateName) {
 				rulesSectionsEl.innerHTML = "";
 				const section = document.createElement("div");
 				section.className = "rules-section";
-
-				const labelDiv = document.createElement("div");
-				labelDiv.className = "rules-section-label";
-				const labelChip = document.createElement("span");
-				labelChip.textContent = "Template";
-				labelDiv.appendChild(labelChip);
-
-				const contentDiv = document.createElement("div");
-				contentDiv.className = "rules-section-content muted";
-				contentDiv.textContent =
-					"No rules have been entered yet for " +
-					stateName +
-					". Each row here corresponds to a column in your Google Sheet. " +
-					"As you populate the sheet for this state, refresh the page to see the content appear.";
-
-				section.appendChild(labelDiv);
-				section.appendChild(contentDiv);
+				section.innerHTML = `
+            <div class="rules-section-label"><span>Status</span></div>
+            <div class="rules-section-content muted">
+                No rules found for ${stateName} in the connected sheet.<br>
+                Add a row in your Google Sheet with "State" set to "${stateName}" and refresh.
+            </div>
+        `;
 				rulesSectionsEl.appendChild(section);
 			}
 
-			// ---- Event listeners -------------------------------------------------------
+			// ============================================================================
+			// EVENT LISTENERS
+			// ============================================================================
+
+			// Dropdown filter change
 			fieldFilterEl.addEventListener("change", () => {
-				if (!activeStateCode) return;
-				renderRulesSections();
+				if (activeStateCode) renderRulesSections();
 			});
 
+			// Text search input
 			detailSearchEl.addEventListener("input", () => {
-				if (!activeStateCode) return;
-				renderRulesSections();
+				if (activeStateCode) renderRulesSections();
 			});
 
-			// ---- Google Sheets integration (CSV) ---------------------------------------
-			// Easiest option (no auth): in Google Sheets:
-			//   File -> Share -> Publish to web -> Entire sheet -> CSV
-			//   Copy the generated URL and paste it below.
-			//
-			// Expected header row in your sheet:
-			//   state_code, statute, pii, breach, riskOfHarm, timingIndividuals,
-			//   timingAG, timingCreditAgencies, noticeContent, noticeMethod,
-			//   penalties, exemptions, sourceUrl, notes
-			//
-			// Example:
-			//   CA,"Cal. Civ. Code ...","PII text...","Breach text...", ... etc
-			//
-			const SHEET_CSV_URL = ""; // <---- put your published CSV URL here
-
-			// We no longer need a URL – user will upload a CSV file
-			// expected headers:
-			// Serial No., State / Jurisdiction, Statute(s) Citation,
-			// Definition of Personal Information (PII), Definition of Breach,
-			// Risk of Harm Analysis, ... (plus other columns if you have them)
-
-			// Helper: take raw CSV text and merge it into STATES[]
-			function applySheetTsvText(text) {
-				const lines = text.split(/\r?\n/).filter((l) => l.trim().length > 0);
-				if (lines.length <= 1) return;
-
-				// NOTE: use "\t" instead of ","
-				const header = lines[0].split("\t").map((h) => h.trim());
-				const lowerHeader = header.map((h) => h.toLowerCase());
-
-				const findCol = (...candidates) => {
-					const targets = candidates.map((c) => c.toLowerCase());
-					return lowerHeader.findIndex((h) =>
-						targets.some((t) => h.includes(t))
+			// State search (top left)
+			stateSearchEl.addEventListener("keydown", (e) => {
+				if (e.key === "Enter") {
+					const query = stateSearchEl.value.trim().toLowerCase();
+					const foundState = STATES.find(
+						(s) =>
+							s.name.toLowerCase() === query || s.code.toLowerCase() === query
 					);
-				};
-
-				const idxStateName = findCol("state / jurisdiction", "state");
-				const idxStatute = findCol("statute(s) citation");
-				const idxPII = findCol("definition of personal information");
-				const idxBreach = findCol("definition of breach");
-				const idxRiskOfHarm = findCol("risk of harm analysis");
-				const idxTimingInd = findCol("notification to individuals");
-				const idxTimingAG = findCol(
-					"notification to attorney general",
-					"notification to ag"
-				);
-				const idxTimingCredit = findCol("notification to credit");
-				const idxNoticeContent = findCol(
-					"contents of notice",
-					"content of notice"
-				);
-				const idxNoticeMethod = findCol("method of notice");
-				const idxPenalties = findCol("penalties");
-				const idxExemptions = findCol("exemptions");
-				const idxSourceUrl = findCol("source url", "link");
-				const idxNotes = findCol("notes", "other requirements");
-
-				if (idxStateName === -1) {
-					console.warn("Could not find 'State / Jurisdiction' column in TSV");
-					return;
+					if (foundState) setActiveState(foundState.code);
 				}
+			});
 
-				// Optional: clear any previous rules
-				STATES.forEach((s) => {
-					s.rules = [];
-				});
-
-				lines.slice(1).forEach((line) => {
-					const cols = line.split("\t"); // <-- tab here
-
-					const stateName = (cols[idxStateName] || "").trim();
-					if (!stateName) return;
-
-					const state = STATES.find(
-						(s) => s.name.toLowerCase() === stateName.toLowerCase()
-					);
-					if (!state) {
-						console.warn("State in TSV not found in STATES list:", stateName);
-						return;
-					}
-
-					const rule = {
-						statute: idxStatute >= 0 ? (cols[idxStatute] || "").trim() : "",
-						pii: idxPII >= 0 ? (cols[idxPII] || "").trim() : "",
-						breach: idxBreach >= 0 ? (cols[idxBreach] || "").trim() : "",
-						riskOfHarm:
-							idxRiskOfHarm >= 0 ? (cols[idxRiskOfHarm] || "").trim() : "",
-						timingIndividuals:
-							idxTimingInd >= 0 ? (cols[idxTimingInd] || "").trim() : "",
-						timingAG: idxTimingAG >= 0 ? (cols[idxTimingAG] || "").trim() : "",
-						timingCreditAgencies:
-							idxTimingCredit >= 0 ? (cols[idxTimingCredit] || "").trim() : "",
-						noticeContent:
-							idxNoticeContent >= 0
-								? (cols[idxNoticeContent] || "").trim()
-								: "",
-						noticeMethod:
-							idxNoticeMethod >= 0 ? (cols[idxNoticeMethod] || "").trim() : "",
-						penalties:
-							idxPenalties >= 0 ? (cols[idxPenalties] || "").trim() : "",
-						exemptions:
-							idxExemptions >= 0 ? (cols[idxExemptions] || "").trim() : "",
-						sourceUrl:
-							idxSourceUrl >= 0 ? (cols[idxSourceUrl] || "").trim() : "",
-						notes: idxNotes >= 0 ? (cols[idxNotes] || "").trim() : "",
-					};
-
-					if (!state.rules) state.rules = [];
-					state.rules.push(rule);
-				});
-
-				if (activeStateCode) {
-					setActiveState(activeStateCode);
-				}
-			}
-
-			// Wire the <input type="file"> to the parser
-			const uploadModule = document.getElementById("uploadModule");
-
-			const csvFileInput = document.getElementById("csvFileInput");
-			if (csvFileInput) {
-				csvFileInput.addEventListener("change", (e) => {
-					const file = e.target.files && e.target.files[0];
-					if (!file) return;
-
-					const reader = new FileReader();
-					reader.onload = (evt) => {
-						const text = evt.target.result;
-						applySheetTsvText(text);
-
-						// Hide upload after successful parse
-						if (uploadModule) {
-							uploadModule.classList.add("hidden");
-						}
-					};
-					reader.readAsText(file);
-				});
-			}
+			// ============================================================================
+			// INIT
+			// ============================================================================
+			setupMapInteractions();
+			initDataLoad(); // Start the fetch
 		</script>
 	</body>
 </html>
