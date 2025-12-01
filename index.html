@@ -6,7 +6,39 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<style>
 			/* --- Add this to your existing <style> section --- */
+			.us-map path.heat-strict {
+				fill: #ef4444 !important; /* RED */
+				filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.6)); /* Glow effect */
+				z-index: 10;
+			}
 
+			.us-map path.heat-moderate {
+				fill: #f59e0b !important; /* ORANGE */
+			}
+
+			.us-map path.heat-flexible {
+				fill: #3b82f6 !important; /* BLUE */
+				opacity: 0.4; /* Dim the safe ones so red pops out */
+			}
+
+			/* Legend for the Heatmap */
+			.heatmap-legend {
+				display: flex;
+				gap: 12px;
+				margin-top: 8px;
+				font-size: 0.7rem;
+				color: #94a3b8;
+			}
+			.legend-item {
+				display: flex;
+				align-items: center;
+				gap: 4px;
+			}
+			.legend-dot {
+				width: 8px;
+				height: 8px;
+				border-radius: 50%;
+			}
 			/* Hide the old grid */
 			.states-grid {
 				display: none;
@@ -40,7 +72,7 @@
 				fill: #1f2937; /* Matches your --chip-bg */
 				stroke: #374151; /* Matches your --border-subtle */
 				stroke-width: 1px;
-				transition: all 0.2s ease;
+				transition: fill 0.2s ease;
 				cursor: pointer;
 			}
 
@@ -461,9 +493,179 @@
 				background: var(--danger);
 			}
 
+			/* --- Map Controls Container --- */
+			.map-controls {
+				display: flex;
+				flex-direction: column;
+				gap: 8px;
+				margin-top: 8px;
+				padding: 10px 12px;
+				background: #0f172a; /* Darker background to separate from panel */
+				border: 1px solid var(--border-subtle);
+				border-radius: 12px;
+			}
+
+			.toggle-row {
+				display: flex;
+				justify-content: space-between; /* Pushes label left, switch right */
+				align-items: center;
+			}
+
+			.toggle-label {
+				font-size: 0.75rem;
+				font-weight: 600;
+				color: var(--text-muted);
+				text-transform: uppercase;
+				letter-spacing: 0.05em;
+			}
+
+			/* --- The Switch (Same as before but refined sizes) --- */
+			.switch {
+				position: relative;
+				display: inline-block;
+				width: 36px; /* Slightly smaller */
+				height: 20px;
+			}
+			.switch input {
+				opacity: 0;
+				width: 0;
+				height: 0;
+			}
+
+			.slider {
+				position: absolute;
+				cursor: pointer;
+				top: 0;
+				left: 0;
+				right: 0;
+				bottom: 0;
+				background-color: #334155;
+				transition: 0.3s;
+				border-radius: 34px;
+			}
+			.slider:before {
+				position: absolute;
+				content: "";
+				height: 14px;
+				width: 14px;
+				left: 3px;
+				bottom: 3px;
+				background-color: #cbd5e1;
+				transition: 0.3s;
+				border-radius: 50%;
+			}
+			input:checked + .slider {
+				background-color: var(--accent);
+			}
+			input:checked + .slider:before {
+				transform: translateX(16px);
+				background-color: #fff;
+			}
+
+			.legend-pills {
+				display: flex;
+				gap: 6px;
+
+				/* FIX: Start hidden and unclickable */
+				opacity: 0;
+				pointer-events: none;
+
+				transition: opacity 0.3s ease;
+			}
+
+			.legend-pill {
+				flex: 1; /* Distribute space evenly */
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				gap: 5px;
+				font-size: 0.65rem;
+				padding: 4px 0;
+				border-radius: 6px;
+				background: rgba(30, 41, 59, 0.5);
+				border: 1px solid rgba(148, 163, 184, 0.1);
+				color: var(--text-muted);
+				cursor: help;
+			}
+
+			.dot {
+				width: 6px;
+				height: 6px;
+				border-radius: 50%;
+			}
+			.dot.red {
+				background: #ef4444;
+				box-shadow: 0 0 6px rgba(239, 68, 68, 0.4);
+			}
+			.dot.orange {
+				background: #f59e0b;
+			}
+			.dot.blue {
+				background: #3b82f6;
+			}
+
 			.badge-pill.danger {
 				border-color: rgba(248, 113, 113, 0.5);
 				color: #fecaca;
+			}
+
+			/* --- Autocomplete Dropdown --- */
+			.autocomplete-dropdown {
+				position: absolute;
+				top: 100%; /* Push it right below the input */
+				left: 0;
+				right: 0;
+				background: #1e293b; /* Slate-800 matches your theme */
+				border: 1px solid #334155;
+				border-radius: 12px;
+				margin-top: 6px;
+				max-height: 200px;
+				overflow-y: auto;
+				z-index: 50; /* Ensure it sits on top of everything */
+				box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+				display: flex;
+				flex-direction: column;
+			}
+
+			.autocomplete-item {
+				padding: 10px 14px;
+				font-size: 0.85rem;
+				color: #e2e8f0;
+				cursor: pointer;
+				border-bottom: 1px solid rgba(51, 65, 85, 0.5);
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				transition: background 0.15s;
+			}
+
+			.autocomplete-item:last-child {
+				border-bottom: none;
+			}
+
+			.autocomplete-item:hover {
+				background: #2563eb; /* Highlight Blue */
+				color: white;
+			}
+
+			.autocomplete-item .match-code {
+				font-size: 0.7rem;
+				background: rgba(0, 0, 0, 0.3);
+				padding: 2px 6px;
+				border-radius: 4px;
+				color: #cbd5e1;
+			}
+
+			/* Scrollbar refinement for the list */
+			.autocomplete-dropdown::-webkit-scrollbar {
+				width: 6px;
+			}
+			.autocomplete-dropdown::-webkit-scrollbar-track {
+				background: #0f172a;
+			}
+			.autocomplete-dropdown::-webkit-scrollbar-thumb {
+				background: #475569;
+				border-radius: 4px;
 			}
 
 			/* Filter bar inside details */
@@ -733,9 +935,7 @@
 						</p>
 					</div>
 				</div>
-				<div class="header-right">
-					<div class="chip">Breach notification · PII · AG thresholds</div>
-				</div>
+				<div class="header-right"></div>
 			</header>
 
 			<main class="content">
@@ -754,7 +954,36 @@
 							id="stateSearch"
 							type="text"
 							placeholder="Filter by name or code (CA, Texas, NY)..."
+							autocomplete="off"
 						/>
+						<div
+							id="autocompleteList"
+							class="autocomplete-dropdown hidden"
+						></div>
+					</div>
+					<div class="map-controls">
+						<div class="toggle-row">
+							<span class="toggle-label">Threat Heatmap</span>
+							<label class="switch">
+								<input type="checkbox" id="heatmapToggle" />
+								<span class="slider"></span>
+							</label>
+						</div>
+
+						<div class="legend-pills" id="heatmapLegend">
+							<div class="legend-pill" title="Strict timeline (< 30 days)">
+								<div class="dot red"></div>
+								Strict
+							</div>
+							<div class="legend-pill" title="Moderate timeline (30-60 days)">
+								<div class="dot orange"></div>
+								Moderate
+							</div>
+							<div class="legend-pill" title="Reasonable/undefined timeline">
+								<div class="dot blue"></div>
+								Flexible
+							</div>
+						</div>
 					</div>
 					<div class="map-container">
 						<svg
@@ -1138,16 +1367,6 @@
 								notification requirements.
 							</p>
 						</div>
-						<div class="details-chips">
-							<span class="badge-pill">
-								<span class="badge-dot"></span>
-								PII + Breach
-							</span>
-							<span class="badge-pill danger">
-								<span class="badge-dot"></span>
-								Time sensitive
-							</span>
-						</div>
 					</div>
 
 					<div class="details-filters">
@@ -1185,10 +1404,6 @@
 
 					<div class="details-footer">
 						<span>
-							Tip: treat this as a worksheet. As you research each state, paste
-							legal text into the corresponding fields in your Google Sheet.
-						</span>
-						<span>
 							Status for
 							<span class="highlight-state" id="footerStateName"
 								>United States (overview)</span
@@ -1201,15 +1416,106 @@
 		</div>
 
 		<script>
-			// ============================================================================
-			// CONFIGURATION
-			// ============================================================================
+			// ==========================================
+			// ROBUST HEATMAP LOGIC
+			// ==========================================
+			const heatmapToggle = document.getElementById("heatmapToggle");
+			const heatmapLegend = document.getElementById("heatmapLegend");
 
-			const GOOGLE_LINK =
-				"https://docs.google.com/spreadsheets/d/e/2PACX-1vS0gV7AXGccNCpO84hEFZUHfi9QWc13GJFDw6f3MsWx4fN3gWFWtPujqzYTLOQr5jw4e4gA0U7xzHyG/pub?output=tsv";
+			// 1. Listen for the toggle click
+			if (heatmapToggle) {
+				heatmapToggle.addEventListener("change", () => {
+					if (heatmapToggle.checked) {
+						applyHeatmapColors();
+						if (heatmapLegend) {
+							heatmapLegend.style.opacity = "1";
+							heatmapLegend.style.pointerEvents = "auto"; // Make clickable
+						}
+					} else {
+						removeHeatmapColors();
+						if (heatmapLegend) {
+							// Set to "0" to hide completely, or "0.3" to show as dimmed/inactive
+							heatmapLegend.style.opacity = "0";
+							heatmapLegend.style.pointerEvents = "none"; // Prevent clicks when hidden
+						}
+					}
+				});
+			} else {
+				console.error(
+					"Critical Error: Could not find element with ID 'heatmapToggle'"
+				);
+			}
+
+			function applyHeatmapColors() {
+				STATES.forEach((state) => {
+					// 1. Robust Selector: Try to find the state by data-id OR parent ID
+					let path = document.querySelector(
+						`.us-map path[data-id="${state.code}"]`
+					);
+
+					// Fallback: If not found, look for the parent anchor tag (<a>)
+					if (!path) {
+						const parentLink = document.getElementById(state.code);
+						if (parentLink) {
+							path = parentLink.querySelector("path");
+						}
+					}
+
+					if (!path) {
+						console.warn(`Could not find map shape for ${state.code}`);
+						return;
+					}
+
+					// 2. Get the rule text (Timing for Individuals)
+					const rules = state.rules && state.rules[0] ? state.rules[0] : null;
+
+					// If data hasn't loaded yet from Google Sheets, do nothing
+					if (!rules) return;
+
+					const timingText = (rules.timingIndividuals || "").toLowerCase();
+
+					// 3. Apply Colors
+					// Clean old classes first
+					path.classList.remove(
+						"heat-strict",
+						"heat-moderate",
+						"heat-flexible"
+					);
+
+					// Logic
+					if (
+						timingText.includes("30 days") ||
+						timingText.includes("72 hours") ||
+						timingText.includes("immediately")
+					) {
+						path.classList.add("heat-strict");
+					} else if (
+						timingText.includes("45 days") ||
+						timingText.includes("60 days")
+					) {
+						path.classList.add("heat-moderate");
+					} else {
+						// Default blue for "Reasonable" or undefined
+						path.classList.add("heat-flexible");
+					}
+				});
+			}
+
+			function removeHeatmapColors() {
+				document.querySelectorAll(".us-map path").forEach((path) => {
+					path.classList.remove(
+						"heat-strict",
+						"heat-moderate",
+						"heat-flexible"
+					);
+				});
+			}
 
 			const SHEET_URL =
-				"https://corsproxy.io/?" + encodeURIComponent(GOOGLE_LINK);
+				"https://docs.google.com/spreadsheets/d/e/2PACX-1vS0gV7AXGccNCpO84hEFZUHfi9QWc13GJFDw6f3MsWx4fN3gWFWtPujqzYTLOQr5jw4e4gA0U7xzHyG/pub?output=tsv";
+
+			//  const SHEET_URL =
+			// 	"https://corsproxy.io/?" + encodeURIComponent(GOOGLE_LINK);
 			// ============================================================================
 			// FIELD METADATA & STATE DATA SKELETON
 			// ============================================================================
@@ -1613,6 +1919,72 @@
 			// ============================================================================
 			setupMapInteractions();
 			initDataLoad(); // Start the fetch
+			// ==========================================
+			// AUTOCOMPLETE LOGIC
+			// ==========================================
+			const searchInput = document.getElementById("stateSearch");
+			const autocompleteList = document.getElementById("autocompleteList");
+
+			// 1. Listen for typing
+			searchInput.addEventListener("input", function () {
+				const val = this.value.toLowerCase();
+
+				// Clear list first
+				autocompleteList.innerHTML = "";
+
+				// If empty, hide
+				if (!val) {
+					autocompleteList.classList.add("hidden");
+					return;
+				}
+
+				// Filter States
+				const matches = STATES.filter(
+					(state) =>
+						state.name.toLowerCase().includes(val) ||
+						state.code.toLowerCase().includes(val)
+				);
+
+				// If no matches, hide
+				if (matches.length === 0) {
+					autocompleteList.classList.add("hidden");
+					return;
+				}
+
+				// Build List
+				matches.forEach((state) => {
+					const item = document.createElement("div");
+					item.className = "autocomplete-item";
+
+					// Content: "Texas <span class='match-code'>TX</span>"
+					item.innerHTML = `
+            <span>${state.name}</span>
+            <span class="match-code">${state.code}</span>
+        `;
+
+					// Click Event
+					item.addEventListener("click", () => {
+						// Trigger your existing logic
+						setActiveState(state.code);
+
+						// Clear search UI
+						searchInput.value = ""; // Optional: clear input or set to state.name
+						autocompleteList.classList.add("hidden");
+					});
+
+					autocompleteList.appendChild(item);
+				});
+
+				// Show list
+				autocompleteList.classList.remove("hidden");
+			});
+
+			// 2. Hide list if user clicks anywhere else on screen
+			document.addEventListener("click", (e) => {
+				if (e.target !== searchInput && e.target !== autocompleteList) {
+					autocompleteList.classList.add("hidden");
+				}
+			});
 		</script>
 	</body>
 </html>
