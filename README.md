@@ -2,7 +2,7 @@
 
 A web-based visualization tool for exploring and comparing data breach notification statutes across the United States.
 
-![Application Interface](screenshot.png)
+![Application Interface](image.png)
 
 ## Project Overview
 
